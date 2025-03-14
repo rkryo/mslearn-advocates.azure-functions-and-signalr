@@ -8,6 +8,9 @@
 
 set -e
 
+# Git Bash の自動パス変換を無効にする
+export MSYS_NO_PATHCONV=1
+
 printf "Param 1: $1\n"
 
 LOCATION="eastus2"
