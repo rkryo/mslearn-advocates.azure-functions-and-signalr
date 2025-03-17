@@ -1,60 +1,65 @@
-const Dotenv = require('dotenv-webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const path = require('path');
+//  githubのwebpackのissueを参照して追加
+const { config: configDotEnv } = require("dotenv");
+const { DefinePlugin, ProvidePlugin } = require("webpack");
+const dotenv = configDotEnv();
+
+const Dotenv = require("dotenv-webpack");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const path = require("path");
 
 module.exports = {
-
-    entry: './src/index.js',
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+  entry: "./src/index.js",
+  output: {
+    path: path.resolve(__dirname, "dist"),
+    filename: "bundle.js",
+  },
+  devServer: {
+    static: {
+      directory: path.join(__dirname, "dist"),
     },
-    devServer: {
-        static: {
-          directory: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 3000,
+    allowedHosts: "all",
+    client: {
+      logging: "verbose",
+      overlay: true,
+    },
+    proxy: [
+      {
+        context: ["/api"],
+        target: "http://localhost:7071",
+      },
+    ],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+          },
         },
-        compress: true,
-        port: 3000,
-        allowedHosts: 'all',
-        client: {
-            logging: 'verbose',
-            overlay: true,
-          },
-          proxy: [
-            {
-              context: ['/api'],
-              target: 'http://localhost:7071',
-            },
-          ],
       },
-    module: {
-        rules: [
-          {
-            test: /\.css$/i,
-            use: ['style-loader', 'css-loader'],
-          },
-          {
-            "test": /\.js$/,
-            "exclude": /node_modules/,
-            "use": {
-              "loader": "babel-loader",
-              "options": {
-                "presets": [
-                  "@babel/preset-env",
-                ]
-              }
-            }
-        }
-        ]
-      },
-      plugins: [
-        new Dotenv(),
-        new CopyWebpackPlugin({
-            patterns: [
-              { from: './src/favicon.ico', to: './' },
-              { from: './index.html', to: './'}
-            ],
-          }),
-    ]
-      
-}
+    ],
+  },
+  plugins: [
+    new Dotenv(),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "./src/favicon.ico", to: "./" },
+        { from: "./index.html", to: "./" },
+      ],
+    }),
+
+    //  githubのwebpackのissueを参照して追加
+    new ProvidePlugin({ process: "process" }),
+    new DefinePlugin({ "process.env": `(${JSON.stringify(dotenv.parsed)})` }),
+  ],
+};
