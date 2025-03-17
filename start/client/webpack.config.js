@@ -1,8 +1,3 @@
-//  githubのwebpackのissueを参照して追加
-const { config: configDotEnv } = require("dotenv");
-const { DefinePlugin, ProvidePlugin } = require("webpack");
-const dotenv = configDotEnv();
-
 const Dotenv = require("dotenv-webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
@@ -50,16 +45,16 @@ module.exports = {
     ],
   },
   plugins: [
-    new Dotenv(),
+    new Dotenv({
+      path: path.resolve(__dirname, ".env"), // .env ファイルがある場合のパス
+      systemvars: true, // システムの環境変数も取り込む
+      silent: true, // .env ファイルが存在しなくても警告を出さない
+    }),
     new CopyWebpackPlugin({
       patterns: [
         { from: "./src/favicon.ico", to: "./" },
         { from: "./index.html", to: "./" },
       ],
     }),
-
-    //  githubのwebpackのissueを参照して追加
-    new ProvidePlugin({ process: "process" }),
-    new DefinePlugin({ "process.env": `(${JSON.stringify(dotenv.parsed)})` }),
   ],
 };
